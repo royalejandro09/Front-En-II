@@ -89,3 +89,9 @@ button {
   align-items: center;
   justify-content: center;
 }
+
+#spinner{
+  width: 50%;
+  display: none;
+  margin: 0 auto;
+}

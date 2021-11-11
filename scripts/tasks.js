@@ -65,7 +65,8 @@ window.addEventListener('load', function () {
             })
     }
 
-    function obtenerListadoTareas(url, jwt) {
+    //Declaramos nuestra funcioon asincrona ASYNC para utilizar el await (async/await)
+    async function obtenerListadoTareas(url, jwt) {
 
         const settings = {
             method: 'GET',
@@ -75,12 +76,26 @@ window.addEventListener('load', function () {
 
         }
 
-        fetch(url, settings)
+        try {
+            //Con el await esperamos el resultado de la promesa y lo almacenamos en respuesta
+            const respuesta = await fetch(url, settings);
+            //Este respuesta.json() me devuelve otra promesa utilizamos el await
+            const data = await respuesta.json();
+            console.log(data);
+            renderizarTareas(data);
+
+        } catch (error) {
+            console.log(error);
+            alert(error);
+        }
+
+
+        /**fetch(url, settings)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
                 renderizarTareas(data);
-            })
+           })**/
     }
 
     function crearNuevaTarea(url, token, payload) {
@@ -111,7 +126,32 @@ window.addEventListener('load', function () {
         nodoTareasTerminadas.innerHTML = "";
         nodoTareasPendientes.innerHTML = "";
 
-        listadoDeTareas.forEach(tarea => {
+
+        const tareasTerminadas = listadoDeTareas.filter(tarea => tarea.completed);
+        const tareasPendientes = listadoDeTareas.filter(tarea => !tarea.completed);
+
+        nodoTareasTerminadas.innerHTML = tareasTerminadas.map(tarea =>
+            `<li class="tarea">
+            <div class="done"></div>
+            <div class="descripcion">
+               <p class="nombre">${tarea.description}</p>
+               <div>
+                   <button><i id="${tarea.id}" class="fas fa-undo-alt change"></i></button>
+                   <button><i id="${tarea.id}" class="far fa-trash-alt"></i></button>
+                </div>
+            </div>
+            </li>` ).join('')
+
+        nodoTareasPendientes.innerHTML = tareasPendientes.map(tarea =>
+            `<li class="tarea">
+                     <div class="not-done change" id="${tarea.id}"></div>
+                     <div class="descripcion">
+                          <p class="nombre">${tarea.description}</p>
+                          <p class="timestamp"><i class="far fa-calendar-alt"></i> ${tarea.createdAt}</p>
+                     </div>
+          </li>` ).join('')
+
+        /**listadoDeTareas.forEach(tarea => {
             if (!tarea.completed) {
                 nodoTareasPendientes.innerHTML +=
                     `<li class="tarea">
@@ -134,7 +174,8 @@ window.addEventListener('load', function () {
                      </div>
             </li>`
             }
-        });
+        });**/
+
         cambioDeEstado();
         borrarTarea();
 
@@ -145,7 +186,7 @@ window.addEventListener('load', function () {
 
         btnCambioEstado.forEach(boton => {
             boton.addEventListener('click', function (e) {
-                
+
                 //e.target : me captura el id del elemento donde ejecuto el evento click
                 const id = e.target.id;
                 const url = `${apiBaseUrl}/tasks/${id}`;
