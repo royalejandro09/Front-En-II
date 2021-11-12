@@ -12,6 +12,10 @@ const apiBaseUrl = 'https://ctd-todo-api.herokuapp.com/v1';
 /********************** EVENTOS ********************************************* */
 window.addEventListener('load', function () {
 
+    //Incializando las librerias
+    AOS.init();
+    dayjs().format();
+
     //Capturando etiquetas
     const nodoNombreUsuario = document.querySelector('.user-info p');
     const nodoFormulario = document.querySelector('.nueva-tarea');
@@ -25,11 +29,30 @@ window.addEventListener('load', function () {
     botonCerrar = document.querySelector('#closeApp');
 
     botonCerrar.addEventListener('click', function () {
+
+        Swal.fire({
+            title: '¿Desea cerrar sesión?',
+            text: "Para igresar de nuevo debera introducir sus credenciales!",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si!',
+            cancelButtonText: '¡Mejor luego!'
+
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //Cierre de sesion del usuario
+                localStorage.clear();
+                location.replace("/");
+            }
+        })
+
         //limpiamos el storage donde tenemos almacenado el Token 
-        if (confirm("Desea cerrar su sesion?")) {
+        /**if (confirm("Desea cerrar su sesion?")) {
             localStorage.clear();
             location.replace("/");
-        }
+        }**/
 
     })
 
@@ -131,7 +154,7 @@ window.addEventListener('load', function () {
         const tareasPendientes = listadoDeTareas.filter(tarea => !tarea.completed);
 
         nodoTareasTerminadas.innerHTML = tareasTerminadas.map(tarea =>
-            `<li class="tarea">
+            `<li class="tarea" data-aos="flip-right">
             <div class="done"></div>
             <div class="descripcion">
                <p class="nombre">${tarea.description}</p>
@@ -143,11 +166,11 @@ window.addEventListener('load', function () {
             </li>` ).join('')
 
         nodoTareasPendientes.innerHTML = tareasPendientes.map(tarea =>
-            `<li class="tarea">
+            `<li class="tarea"  data-aos="fade-down">
                      <div class="not-done change" id="${tarea.id}"></div>
                      <div class="descripcion">
                           <p class="nombre">${tarea.description}</p>
-                          <p class="timestamp"><i class="far fa-calendar-alt"></i> ${tarea.createdAt}</p>
+                          <p class="timestamp"><i class="far fa-calendar-alt"></i> ${dayjs(tarea.createdAt).format('D/MMM/YY - hh:mm')}</p>
                      </div>
           </li>` ).join('')
 
